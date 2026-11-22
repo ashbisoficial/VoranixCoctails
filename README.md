@@ -60,3 +60,7 @@ black_russian, green_fairy, mai_tai, sangria, long_island, empty_glass.
 - **En plato** (se colocan como bloque y se comen por mordiscos con clic derecho, como la torta; al terminar queda el plato vacío): Hamburguesa, Papas fritas, Completo, Salchipapas. También hay un **Plato** decorativo.
 - **En la mano** (se comen como cualquier comida): Empanada, Sopaipilla, Sopaipilla con pebre.
 - Todo está en la pestaña creativa *Cocteleria* (sin recetas).
+
+## Blackjack con crupier (staff)
+
+Un jugador toma el rol de **crupier** (staff) y controla la mesa: reparte la ronda, cierra las jugadas, pide carta o se planta y cierra la mesa. De **1 a 3 jugadores** se unen y piden carta o se plantan. La carta oculta del crupier se muestra cuando juega.

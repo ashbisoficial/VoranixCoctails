@@ -8,24 +8,73 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 
-/** Veintiuno contra el crupier: Repartir / Pedir carta / Plantarse. */
+import java.util.ArrayList;
+import java.util.List;
+
+/** Veintiuno con crupier humano (staff): los botones cambian según seas crupier, jugador o espectador. */
 public class BlackjackScreen extends GameScreen {
+    private static final int LOBBY = 0, PLAYING = 1, DEALER = 2, RESULT = 3;
     private static final String[] RANK = {"A", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"};
     private static final String[] SUIT = {"♥", "♦", "♣", "♠"};
 
     public BlackjackScreen(BlockPos pos) {
-        super("Veintiuno", pos, BarGame.BLACKJACK);
+        super("Blackjack", pos, BarGame.BLACKJACK);
+    }
+
+    @Override
+    protected void onData() {
+        rebuildWidgets(); // los botones dependen del rol y de la fase
+    }
+
+    private record Act(String label, int type) {
     }
 
     @Override
     protected void build() {
-        int y = height - 28;
-        addRenderableWidget(Button.builder(Component.literal("Repartir / Unirme"), b -> send(1, 0, 0, 0))
-                .bounds(width / 2 - 155, y, 100, 20).build());
-        addRenderableWidget(Button.builder(Component.literal("Pedir carta"), b -> send(2, 0, 0, 0))
-                .bounds(width / 2 - 50, y, 100, 20).build());
-        addRenderableWidget(Button.builder(Component.literal("Plantarme"), b -> send(3, 0, 0, 0))
-                .bounds(width / 2 + 55, y, 100, 20).build());
+        int phase = data.getInt("phase");
+        boolean dealer = isMe(data.getString("did"));
+        boolean hasDealer = !data.getString("did").isEmpty();
+        ListTag hands = data.getList("hands", 10);
+        boolean player = false, mineDone = true;
+        for (int i = 0; i < hands.size(); i++) {
+            if (isMe(hands.getCompound(i).getString("id"))) {
+                player = true;
+                mineDone = hands.getCompound(i).getBoolean("done");
+            }
+        }
+        List<Act> acts = new ArrayList<>();
+        if (dealer) {
+            if (phase == LOBBY || phase == RESULT) {
+                acts.add(new Act("Repartir ronda", 3));
+            } else if (phase == PLAYING) {
+                acts.add(new Act("Cerrar jugadas", 8));
+            } else if (phase == DEALER) {
+                acts.add(new Act("Pedir carta", 6));
+                acts.add(new Act("Plantarme y resolver", 7));
+            }
+            acts.add(new Act("Cerrar mesa", 9));
+        } else if (player) {
+            if (phase == PLAYING && !mineDone) {
+                acts.add(new Act("Pedir carta", 4));
+                acts.add(new Act("Plantarme", 5));
+            }
+            acts.add(new Act("Salir", 9));
+        } else {
+            if (!hasDealer) {
+                acts.add(new Act("Ser crupier (staff)", 1));
+            }
+            if ((phase == LOBBY || phase == RESULT) && hands.size() < data.getInt("max")) {
+                acts.add(new Act("Unirme como jugador", 2));
+            }
+        }
+        int bw = 118, gap = 6;
+        int total = acts.size() * bw + (acts.size() - 1) * gap;
+        int x = (width - total) / 2;
+        for (Act a : acts) {
+            addRenderableWidget(Button.builder(Component.literal(a.label()), b -> send(a.type(), 0, 0, 0))
+                    .bounds(x, height - 28, bw, 20).build());
+            x += bw + gap;
+        }
     }
 
     private void card(GuiGraphics g, int x, int y, int c, boolean hidden) {
@@ -45,31 +94,37 @@ public class BlackjackScreen extends GameScreen {
     @Override
     public void render(GuiGraphics g, int mouseX, int mouseY, float pt) {
         renderBackground(g);
-        g.fill(20, 24, width - 20, height - 40, 0xFF0F5132);
-        boolean playing = data.getBoolean("playing");
-        int[] dealer = data.getIntArray("dealer");
-        text(g, "Crupier", 34, 30, 0xFFFFFFFF);
-        for (int i = 0; i < dealer.length; i++) {
-            card(g, 34 + i * 34, 42, dealer[i], playing && i == 1);
+        int phase = data.getInt("phase");
+        g.fill(14, 14, width - 14, height - 40, 0xFF0F5132);
+        // crupier
+        String dn = data.getString("dealer").isEmpty() ? "(sin crupier)" : data.getString("dealer");
+        boolean showAll = phase >= DEALER;
+        String dv = showAll && data.getIntArray("dealerCards").length > 0 ? " · " + data.getInt("dealerValue") : "";
+        text(g, "Crupier (staff): " + dn + dv, 26, 22, isMe(data.getString("did")) ? 0xFF7CFC9A : 0xFFFFD27F);
+        int[] dc = data.getIntArray("dealerCards");
+        for (int i = 0; i < dc.length; i++) {
+            card(g, 26 + i * 34, 34, dc[i], !showAll && i == 1);
         }
+        // jugadores en columnas (hasta 3)
         ListTag hands = data.getList("hands", 10);
-        int y = 100;
+        int colW = Math.max(150, (width - 52) / 3);
         for (int i = 0; i < hands.size(); i++) {
             CompoundTag h = hands.getCompound(i);
+            int x = 26 + i * colW, y = 100;
             boolean mine = isMe(h.getString("id"));
-            String label = h.getString("name") + " · " + h.getInt("value") + (h.getBoolean("done") && playing ? " (plantado)" : "")
-                    + (h.getString("result").isEmpty() ? "" : " · " + h.getString("result"));
-            text(g, label, 34, y, mine ? 0xFF7CFC9A : 0xFFFFFFFF);
             int[] cards = h.getIntArray("cards");
+            String status = cards.length == 0 ? "" : " · " + h.getInt("value") + (h.getInt("value") > 21 ? " (se pasa)" : h.getBoolean("done") && phase == PLAYING ? " (plantado)" : "");
+            text(g, h.getString("name") + status, x, y, mine ? 0xFF7CFC9A : 0xFFFFFFFF);
             for (int k = 0; k < cards.length; k++) {
-                card(g, 34 + k * 34, y + 11, cards[k], false);
+                card(g, x + (k % 4) * 34, y + 12 + (k / 4) * 48, cards[k], false);
             }
-            y += 62;
-            if (y > height - 110) {
-                break;
+            if (!h.getString("result").isEmpty()) {
+                String r = h.getString("result");
+                text(g, r, x, y + 112, r.equals("GANA") || r.equals("BLACKJACK") ? 0xFFFFDC00 : r.equals("empata") ? 0xFFAAAAAA : 0xFFFF7F7F);
             }
         }
-        wrapped(g, data.getString("msg"), width / 2 + 20, 34, width / 2 - 60, 0xFFFFFFFF);
+        text(g, "Jugadores " + hands.size() + "/" + data.getInt("max"), 26, 90 - 12, 0xFFCCCCCC);
+        wrapped(g, data.getString("msg"), 26, height - 76, width - 60, 0xFFFFFFFF);
         super.render(g, mouseX, mouseY, pt);
     }
 }
