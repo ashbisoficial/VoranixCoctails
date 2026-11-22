@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "cocteleria:block/foosball_table"
+  },
+  "facing=east": {
+   "model": "cocteleria:block/foosball_table",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "cocteleria:block/foosball_table",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "cocteleria:block/foosball_table",
+   "y": 270
+  }
+ }
+}

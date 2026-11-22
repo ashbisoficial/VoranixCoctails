@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "cocteleria:block/whisky_bottle"
+  },
+  "facing=east": {
+   "model": "cocteleria:block/whisky_bottle",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "cocteleria:block/whisky_bottle",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "cocteleria:block/whisky_bottle",
+   "y": 270
+  }
+ }
+}

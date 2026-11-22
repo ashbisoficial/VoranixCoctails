@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "cocteleria:block/coaster"
+  },
+  "facing=east": {
+   "model": "cocteleria:block/coaster",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "cocteleria:block/coaster",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "cocteleria:block/coaster",
+   "y": 270
+  }
+ }
+}

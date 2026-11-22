@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "cocteleria:block/poker_chips"
+  },
+  "facing=east": {
+   "model": "cocteleria:block/poker_chips",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "cocteleria:block/poker_chips",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "cocteleria:block/poker_chips",
+   "y": 270
+  }
+ }
+}

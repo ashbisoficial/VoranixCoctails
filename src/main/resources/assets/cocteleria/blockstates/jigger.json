@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "cocteleria:block/jigger"
+  },
+  "facing=east": {
+   "model": "cocteleria:block/jigger",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "cocteleria:block/jigger",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "cocteleria:block/jigger",
+   "y": 270
+  }
+ }
+}

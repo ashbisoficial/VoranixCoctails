@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "cocteleria:block/card_deck"
+  },
+  "facing=east": {
+   "model": "cocteleria:block/card_deck",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "cocteleria:block/card_deck",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "cocteleria:block/card_deck",
+   "y": 270
+  }
+ }
+}

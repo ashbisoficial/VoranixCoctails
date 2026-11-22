@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "cocteleria:block/shaker"
+  },
+  "facing=east": {
+   "model": "cocteleria:block/shaker",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "cocteleria:block/shaker",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "cocteleria:block/shaker",
+   "y": 270
+  }
+ }
+}

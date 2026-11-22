@@ -1,0 +1,26 @@
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="cocteleria"
+version="1.0.0"
+displayName="Cocteleria"
+description='''
+Una barra de cócteles para Minecraft: solo las bebidas, sin recetas y sin generación en el mundo.
+Cada trago te da efectos (mareo, lentitud, visión nocturna...) y el efecto propio "Embriagado".
+'''
+
+[[dependencies.cocteleria]]
+modId="forge"
+mandatory=true
+versionRange="[47,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.cocteleria]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.20.1,1.21)"
+ordering="NONE"
+side="BOTH"

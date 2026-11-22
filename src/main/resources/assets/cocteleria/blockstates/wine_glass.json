@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "facing=north": {
+   "model": "cocteleria:block/wine_glass"
+  },
+  "facing=east": {
+   "model": "cocteleria:block/wine_glass",
+   "y": 90
+  },
+  "facing=south": {
+   "model": "cocteleria:block/wine_glass",
+   "y": 180
+  },
+  "facing=west": {
+   "model": "cocteleria:block/wine_glass",
+   "y": 270
+  }
+ }
+}
