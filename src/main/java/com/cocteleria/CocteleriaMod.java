@@ -1,8 +1,10 @@
 package com.cocteleria;
 
+import com.cocteleria.net.ModNetwork;
 import com.cocteleria.registry.ModBlockEntities;
 import com.cocteleria.registry.ModBlocks;
 import com.cocteleria.registry.ModEffects;
+import com.cocteleria.registry.ModEntities;
 import com.cocteleria.registry.ModItems;
 import com.cocteleria.registry.ModTabs;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -18,6 +20,8 @@ public class CocteleriaMod {
         ModEffects.EFFECTS.register(bus);
         ModBlocks.BLOCKS.register(bus);
         ModBlockEntities.TYPES.register(bus);
+        ModEntities.ENTITIES.register(bus);
+        ModNetwork.register();
         ModItems.ITEMS.register(bus);
         ModTabs.TABS.register(bus);
     }

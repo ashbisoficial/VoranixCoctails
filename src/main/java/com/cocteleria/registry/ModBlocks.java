@@ -25,90 +25,118 @@ public class ModBlocks {
     public static final List<RegistryObject<Block>> GAME_BLOCKS = new ArrayList<>();
 
     public static final RegistryObject<Block> WHISKY_BOTTLE = decor("whisky_bottle", SoundType.GLASS, false, null,
-            new double[][]{{5, 0, 5, 11, 8, 11}, {6, 8, 6, 10, 9.5, 10}, {7, 9.5, 7, 9, 12.5, 9}, {6.8, 12.5, 6.8, 9.2, 13.8, 9.2}});
+            new double[][]{{5, 0, 5, 11, 8, 11}, {6, 8, 6, 10, 9.5, 10}, {7, 9.5, 7, 9, 12.5, 9}, {6.8, 12.5, 6.8, 9.2, 13.8, 9.2}},
+            null);
 
     public static final RegistryObject<Block> RUM_BOTTLE = decor("rum_bottle", SoundType.GLASS, false, null,
-            new double[][]{{4.5, 0, 4.5, 11.5, 7, 11.5}, {5.5, 7, 5.5, 10.5, 8.5, 10.5}, {7, 8.5, 7, 9, 11.5, 9}, {6.8, 11.5, 6.8, 9.2, 12.8, 9.2}});
+            new double[][]{{4.5, 0, 4.5, 11.5, 7, 11.5}, {5.5, 7, 5.5, 10.5, 8.5, 10.5}, {7, 8.5, 7, 9, 11.5, 9}, {6.8, 11.5, 6.8, 9.2, 12.8, 9.2}},
+            null);
 
     public static final RegistryObject<Block> TEQUILA_BOTTLE = decor("tequila_bottle", SoundType.GLASS, false, null,
-            new double[][]{{4.5, 0, 4.5, 11.5, 7, 11.5}, {5.5, 7, 5.5, 10.5, 8.5, 10.5}, {7, 8.5, 7, 9, 11.5, 9}, {6.8, 11.5, 6.8, 9.2, 12.8, 9.2}});
+            new double[][]{{4.5, 0, 4.5, 11.5, 7, 11.5}, {5.5, 7, 5.5, 10.5, 8.5, 10.5}, {7, 8.5, 7, 9, 11.5, 9}, {6.8, 11.5, 6.8, 9.2, 12.8, 9.2}},
+            null);
 
     public static final RegistryObject<Block> VODKA_BOTTLE = decor("vodka_bottle", SoundType.GLASS, false, null,
-            new double[][]{{5.5, 0, 5.5, 10.5, 10, 10.5}, {6.5, 10, 6.5, 9.5, 11.5, 9.5}, {7, 11.5, 7, 9, 14.5, 9}, {6.8, 14.5, 6.8, 9.2, 15.8, 9.2}});
+            new double[][]{{5.5, 0, 5.5, 10.5, 10, 10.5}, {6.5, 10, 6.5, 9.5, 11.5, 9.5}, {7, 11.5, 7, 9, 14.5, 9}, {6.8, 14.5, 6.8, 9.2, 15.8, 9.2}},
+            null);
 
     public static final RegistryObject<Block> GIN_BOTTLE = decor("gin_bottle", SoundType.GLASS, false, null,
-            new double[][]{{5, 0, 5, 11, 8, 11}, {6, 8, 6, 10, 9.5, 10}, {7, 9.5, 7, 9, 12.5, 9}, {6.8, 12.5, 6.8, 9.2, 13.8, 9.2}});
+            new double[][]{{5, 0, 5, 11, 8, 11}, {6, 8, 6, 10, 9.5, 10}, {7, 9.5, 7, 9, 12.5, 9}, {6.8, 12.5, 6.8, 9.2, 13.8, 9.2}},
+            null);
 
     public static final RegistryObject<Block> WINE_BOTTLE = decor("wine_bottle", SoundType.GLASS, false, null,
-            new double[][]{{5.5, 0, 5.5, 10.5, 8, 10.5}, {6.5, 8, 6.5, 9.5, 9.5, 9.5}, {7, 9.5, 7, 9, 14.5, 9}, {6.8, 12, 6.8, 9.2, 15, 9.2}});
+            new double[][]{{5.5, 0, 5.5, 10.5, 8, 10.5}, {6.5, 8, 6.5, 9.5, 9.5, 9.5}, {7, 9.5, 7, 9, 14.5, 9}, {6.8, 12, 6.8, 9.2, 15, 9.2}},
+            null);
 
     public static final RegistryObject<Block> SHAKER = decor("shaker", SoundType.METAL, false, null,
-            new double[][]{{5, 0, 5, 11, 5, 11}, {4.8, 4.6, 4.8, 11.2, 5.4, 11.2}, {5.5, 5.4, 5.5, 10.5, 9, 10.5}, {6.5, 9, 6.5, 9.5, 11, 9.5}, {7.2, 11, 7.2, 8.8, 12.2, 8.8}});
+            new double[][]{{5, 0, 5, 11, 5, 11}, {4.8, 4.6, 4.8, 11.2, 5.4, 11.2}, {5.5, 5.4, 5.5, 10.5, 9, 10.5}, {6.5, 9, 6.5, 9.5, 11, 9.5}, {7.2, 11, 7.2, 8.8, 12.2, 8.8}},
+            null);
 
     public static final RegistryObject<Block> ICE_BUCKET = decor("ice_bucket", SoundType.METAL, false, null,
-            new double[][]{{3, 0, 4, 13, 9, 12}});
+            new double[][]{{3, 0, 4, 13, 9, 12}},
+            null);
 
     public static final RegistryObject<Block> SHORT_GLASS = decor("short_glass", SoundType.GLASS, false, null,
-            new double[][]{{5, 0, 5, 11, 6, 11}});
+            new double[][]{{5, 0, 5, 11, 6, 11}},
+            null);
 
     public static final RegistryObject<Block> TALL_GLASS = decor("tall_glass", SoundType.GLASS, false, null,
-            new double[][]{{5.5, 0, 5.5, 10.5, 9, 10.5}});
+            new double[][]{{5.5, 0, 5.5, 10.5, 9, 10.5}},
+            null);
 
     public static final RegistryObject<Block> COCKTAIL_GLASS = decor("cocktail_glass", SoundType.GLASS, false, null,
-            new double[][]{{5.5, 0, 5.5, 10.5, 0.6, 10.5}, {7.5, 0.6, 7.5, 8.5, 5.2, 8.5}, {3.5, 5.2, 3.5, 12.5, 9.2, 12.5}});
+            new double[][]{{5.5, 0, 5.5, 10.5, 0.6, 10.5}, {7.5, 0.6, 7.5, 8.5, 5.2, 8.5}, {3.5, 5.2, 3.5, 12.5, 9.2, 12.5}},
+            null);
 
     public static final RegistryObject<Block> WINE_GLASS = decor("wine_glass", SoundType.GLASS, false, null,
-            new double[][]{{6, 0, 6, 10, 0.6, 10}, {7.5, 0.6, 7.5, 8.5, 5, 8.5}, {5.5, 5, 5.5, 10.5, 11.5, 10.5}});
+            new double[][]{{6, 0, 6, 10, 0.6, 10}, {7.5, 0.6, 7.5, 8.5, 5, 8.5}, {5.5, 5, 5.5, 10.5, 11.5, 10.5}},
+            null);
 
     public static final RegistryObject<Block> JIGGER = decor("jigger", SoundType.METAL, false, null,
-            new double[][]{{6, 0, 6, 10, 3, 10}, {7.25, 3, 7.25, 8.75, 4, 8.75}, {5.5, 4, 5.5, 10.5, 8, 10.5}, {5.3, 7.6, 5.3, 10.7, 8, 10.7}});
+            new double[][]{{6, 0, 6, 10, 3, 10}, {7.25, 3, 7.25, 8.75, 4, 8.75}, {5.5, 4, 5.5, 10.5, 8, 10.5}, {5.3, 7.6, 5.3, 10.7, 8, 10.7}},
+            null);
 
     public static final RegistryObject<Block> BAR_SPOON = decor("bar_spoon", SoundType.METAL, false, null,
-            new double[][]{{6.9, 0, 0.8, 9.1, 1.2, 14.8}});
+            new double[][]{{6.9, 0, 0.8, 9.1, 1.2, 14.8}},
+            null);
 
     public static final RegistryObject<Block> BAR_KNIFE = decor("bar_knife", SoundType.METAL, false, null,
-            new double[][]{{7, 0, 1.5, 9, 1, 14.5}});
+            new double[][]{{7, 0, 1.5, 9, 1, 14.5}},
+            null);
 
     public static final RegistryObject<Block> STRAINER = decor("strainer", SoundType.METAL, false, null,
-            new double[][]{{4, 0, 4, 15.5, 1.4, 12}});
+            new double[][]{{4, 0, 4, 15.5, 1.4, 12}},
+            null);
 
     public static final RegistryObject<Block> CUTTING_BOARD = decor("cutting_board", SoundType.WOOD, false, null,
-            new double[][]{{2, 0, 3, 14, 3, 13}});
+            new double[][]{{2, 0, 3, 14, 3, 13}},
+            null);
 
     public static final RegistryObject<Block> MUDDLER = decor("muddler", SoundType.WOOD, false, null,
-            new double[][]{{6.5, 0, 6.5, 9.5, 2, 9.5}, {7.25, 2, 7.25, 8.75, 11, 8.75}, {6.75, 11, 6.75, 9.25, 12.5, 9.25}});
+            new double[][]{{6.5, 0, 6.5, 9.5, 2, 9.5}, {7.25, 2, 7.25, 8.75, 11, 8.75}, {6.75, 11, 6.75, 9.25, 12.5, 9.25}},
+            null);
 
     public static final RegistryObject<Block> COASTER = decor("coaster", SoundType.WOOD, false, null,
-            new double[][]{{4.5, 0, 4.5, 11.5, 0.6, 11.5}});
+            new double[][]{{4.5, 0, 4.5, 11.5, 0.6, 11.5}},
+            null);
 
     public static final RegistryObject<Block> DARTBOARD = decor("dartboard", SoundType.WOOD, true, BarGame.DARTS,
-            new double[][]{{0.5, 0.5, 14, 15.5, 15.5, 16}});
+            new double[][]{{0.5, 0.5, 14, 15.5, 15.5, 16}},
+            null);
 
     public static final RegistryObject<Block> CHESS_BOARD = decor("chess_board", SoundType.WOOD, false, BarGame.CHESS,
-            new double[][]{{0.5, 0, 0.5, 15.5, 1.3, 15.5}});
+            new double[][]{{0.5, 0, 0.5, 15.5, 1.3, 15.5}},
+            null);
 
     public static final RegistryObject<Block> ARM_WRESTLING_TABLE = decor("arm_wrestling_table", SoundType.WOOD, false, BarGame.ARM,
-            new double[][]{{0, 0, 2, 16, 15.2, 14}});
+            new double[][]{{3, 11, 2, 29, 13, 14}, {4, 0, 3, 6.5, 11, 5.5}, {25.5, 0, 3, 28, 11, 5.5}, {4, 0, 10.5, 6.5, 11, 13}, {25.5, 0, 10.5, 28, 11, 13}, {6, 13, 4.5, 13, 13.6, 11.5}, {19, 13, 4.5, 26, 13.6, 11.5}, {13.5, 13, 5.5, 18.5, 14, 10.5}, {14.3, 14, 7.3, 15.5, 17, 8.7}, {16.5, 14, 7.3, 17.7, 17, 8.7}},
+            new int[][]{{0, 0}, {1, 0}});
 
     public static final RegistryObject<Block> POOL_TABLE = decor("pool_table", SoundType.WOOD, false, BarGame.POOL,
-            new double[][]{{0, 0, 1, 16, 15, 15}});
+            new double[][]{{-12.5, 0, 5, -9.5, 11, 8}, {25.5, 0, 5, 28.5, 11, 8}, {-12.5, 0, 24, -9.5, 11, 27}, {25.5, 0, 24, 28.5, 11, 27}, {-14, 10, 3, 30, 13, 29}, {-14, 13, 3, 30, 15, 7}, {-14, 13, 25, 30, 15, 29}, {-14, 13, 7, -10, 15, 25}, {26, 13, 7, 30, 15, 25}, {-10, 13, 7, 26, 14, 25}},
+            new int[][]{{0, 0}, {-1, 0}, {1, 0}, {0, 1}, {-1, 1}, {1, 1}});
 
     public static final RegistryObject<Block> FOOSBALL_TABLE = decor("foosball_table", SoundType.WOOD, false, BarGame.FOOSBALL,
-            new double[][]{{0, 0, 3, 16, 12, 13}});
+            new double[][]{{3, 0, 3, 5, 9, 5}, {27, 0, 3, 29, 9, 5}, {3, 0, 11, 5, 9, 13}, {27, 0, 11, 29, 9, 13}, {2, 9, 2, 30, 13, 14}, {4, 13, 4, 28, 13.3, 12}, {2, 13, 2, 30, 15, 4}, {2, 13, 12, 30, 15, 14}, {2, 13, 4, 4, 15, 12}, {28, 13, 4, 30, 15, 12}},
+            new int[][]{{0, 0}, {1, 0}});
 
     public static final RegistryObject<Block> DICE = decor("dice", SoundType.WOOD, false, BarGame.DICE,
-            new double[][]{{4, 0, 5, 11.7, 3.5, 10.5}});
+            new double[][]{{4, 0, 5, 11.7, 3.5, 10.5}},
+            null);
 
     public static final RegistryObject<Block> CARD_DECK = decor("card_deck", SoundType.WOOD, false, BarGame.BLACKJACK,
-            new double[][]{{2, 0, 3, 14, 2.4, 14}});
+            new double[][]{{2, 0, 3, 14, 2.4, 14}},
+            null);
 
     public static final RegistryObject<Block> POKER_CHIPS = decor("poker_chips", SoundType.WOOD, false, null,
-            new double[][]{{3, 0, 3, 13, 4, 12.5}});
+            new double[][]{{3, 0, 3, 13, 4, 12.5}},
+            null);
 
-    private static RegistryObject<Block> decor(String name, SoundType sound, boolean wall, BarGame game, double[][] boxes) {
+    private static RegistryObject<Block> decor(String name, SoundType sound, boolean wall, BarGame game,
+                                               double[][] boxes, int[][] cells) {
         RegistryObject<Block> block = BLOCKS.register(name, () -> {
             BlockBehaviour.Properties props = BlockBehaviour.Properties.of().strength(0.3F).sound(sound).noOcclusion();
-            return game == null ? new DecorBlock(props, boxes, wall) : new GameDecorBlock(props, boxes, wall, game);
+            return game == null ? new DecorBlock(props, boxes, wall, cells) : new GameDecorBlock(props, boxes, wall, cells, game);
         });
         if (game != null) {
             GAME_BLOCKS.add(block);

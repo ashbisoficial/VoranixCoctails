@@ -6,7 +6,9 @@ os.makedirs(os.path.join(A, "lang"), exist_ok=True)
 
 items = ["mojito","margarita","pina_colada","blue_lagoon","tequila_sunrise","cosmopolitan",
          "whisky_sour","black_russian","green_fairy","mai_tai","sangria","long_island","empty_glass"]
-for i in items:
+for i in ["dart"]:
+    pass
+for i in items + ["dart"]:
     with open(os.path.join(A, "models", "item", i + ".json"), "w") as f:
         json.dump({"parent": "minecraft:item/generated", "textures": {"layer0": f"cocteleria:item/{i}"}}, f, indent=2)
 
@@ -14,6 +16,7 @@ es = {
  "itemGroup.cocteleria": "Cocteleria",
  "effect.cocteleria.tipsy": "Embriagado",
  "item.cocteleria.empty_glass": "Vaso vacío",
+ "item.cocteleria.dart": "Dardo",
  "item.cocteleria.mojito": "Mojito",
  "item.cocteleria.mojito.desc": "Fresco y burbujeante. Velocidad... y un poco de mareo.",
  "item.cocteleria.margarita": "Margarita",
@@ -43,6 +46,7 @@ en = {
  "itemGroup.cocteleria": "Cocteleria",
  "effect.cocteleria.tipsy": "Tipsy",
  "item.cocteleria.empty_glass": "Empty Glass",
+ "item.cocteleria.dart": "Dart",
  "item.cocteleria.mojito": "Mojito",
  "item.cocteleria.mojito.desc": "Fresh and fizzy. Speed... and a bit of dizziness.",
  "item.cocteleria.margarita": "Margarita",

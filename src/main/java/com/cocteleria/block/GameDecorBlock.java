@@ -17,24 +17,27 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
-/** Bloque decorativo con una partida de juego asociada (clic derecho para jugar). */
+/** Bloque decorativo con una partida de juego asociada (clic derecho para abrir la mesa). */
 public class GameDecorBlock extends DecorBlock implements EntityBlock {
     private final BarGame game;
 
-    public GameDecorBlock(Properties properties, double[][] boxes, boolean wall, BarGame game) {
-        super(properties, boxes, wall);
+    public GameDecorBlock(Properties properties, double[][] boxes, boolean wall, int[][] cells, BarGame game) {
+        super(properties, boxes, wall, cells);
         this.game = game;
+    }
+
+    public BarGame game() {
+        return game;
     }
 
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new GameBlockEntity(pos, state);
+        return state.getValue(PART) == 0 ? new GameBlockEntity(pos, state) : null;
     }
 
     @Nullable
     @Override
-    @SuppressWarnings("unchecked")
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide || type != ModBlockEntities.GAME.get()) {
             return null;
@@ -51,8 +54,10 @@ public class GameDecorBlock extends DecorBlock implements EntityBlock {
         if (hand != InteractionHand.MAIN_HAND) {
             return InteractionResult.PASS;
         }
-        if (level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof GameBlockEntity entity) {
-            entity.session(game).use(serverLevel, pos, state, player, hit);
+        BlockPos origin = originOf(state, pos);
+        BlockState originState = level.getBlockState(origin);
+        if (level instanceof ServerLevel serverLevel && level.getBlockEntity(origin) instanceof GameBlockEntity entity) {
+            entity.session(game).use(serverLevel, origin, originState, player, hit);
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;

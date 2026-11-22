@@ -2,6 +2,7 @@ package com.cocteleria.registry;
 
 import com.cocteleria.CocteleriaMod;
 import com.cocteleria.item.CocktailItem;
+import com.cocteleria.item.DartItem;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.Item;
@@ -15,6 +16,10 @@ import java.util.function.Supplier;
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, CocteleriaMod.MODID);
+
+    /** Dardo para la diana: máximo 6 por jugador (un set). */
+    public static final RegistryObject<Item> DART =
+            ITEMS.register("dart", () -> new DartItem(new Item.Properties().stacksTo(6)));
 
     public static final RegistryObject<Item> EMPTY_GLASS =
             ITEMS.register("empty_glass", () -> new Item(new Item.Properties()));

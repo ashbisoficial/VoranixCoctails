@@ -9,6 +9,21 @@ A = os.path.join(ROOT, "src/main/resources/assets/cocteleria")
 S = 8.0
 W, H = 250, 280
 CX, CY = 232, 206
+def set_view(els):
+    global S, CX, CY, W, H
+    pts = []
+    for e in els:
+        f, t = e["from"], e["to"]
+        for x in (f[0], t[0]):
+            for y in (f[1], t[1]):
+                for z in (f[2], t[2]):
+                    pts.append((x*-0.866 + z*-0.866, x*0.5 + z*-0.5 - y))
+    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]
+    w, h = max(xs)-min(xs), max(ys)-min(ys)
+    S = min(8.0, 230.0/max(w, h))
+    W, H = 250, 280
+    CX = 125 - (min(xs)+max(xs))/2*S
+    CY = 150 - (min(ys)+max(ys))/2*S
 AX = np.array([-0.866, 0.5]); AZ = np.array([-0.866, -0.5]); AY = np.array([0.0, -1.0])
 
 def proj(p):
@@ -38,6 +53,7 @@ def render(name):
     model = json.load(open(os.path.join(A, "models/block/%s.json" % name)))
     tex = Image.open(os.path.join(A, "textures/block/%s.png" % name)).convert("RGBA")
     canvas = Image.new("RGBA", (W, H), (70, 74, 84, 255))
+    set_view(model["elements"])
     els = sorted(model["elements"], key=lambda e: sum((e["from"][i]+e["to"][i])/2*s for i, s in enumerate((1, 1, -1))))
     for e in els:
         f, t = e["from"], e["to"]
@@ -61,7 +77,7 @@ def render(name):
             draw_face(canvas, tex, fc["north"]["uv"], R([t[0], t[1], f[2]]), Rv([-dx, 0, 0]), Rv([0, -dy, 0]), 0.84)
     return canvas
 
-names = sorted(f[:-5] for f in os.listdir(os.path.join(A, "models/block")))
+names = sorted(f[:-5] for f in os.listdir(os.path.join(A, "models/block")) if f != "empty.json")
 cols = 6
 rows = math.ceil(len(names) / cols)
 sheet = Image.new("RGBA", (cols*W, rows*H), (0, 0, 0, 255))

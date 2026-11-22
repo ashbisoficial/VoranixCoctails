@@ -213,40 +213,70 @@ def build_block(b):
         if p.get("rot"):
             el["rotation"] = {"origin": p["rot"][0], "axis": "y", "angle": p["rot"][1]}
         elements.append(el)
-    model = {
-        "parent": "minecraft:block/block",
-        "render_type": "minecraft:" + b["render"],
-        "textures": {"0": "cocteleria:block/" + b["id"], "particle": "cocteleria:block/" + b["id"]},
-        "elements": elements,
-        "display": {
-            "gui": {"rotation": [30, 225, 0], "translation": [0, -1, 0], "scale": [0.85, 0.85, 0.85]},
-            "ground": {"rotation": [0, 0, 0], "translation": [0, 3, 0], "scale": [0.5, 0.5, 0.5]},
-            "fixed": {"rotation": [0, 180, 0], "translation": [0, -1, 0], "scale": [0.7, 0.7, 0.7]},
-            "thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.4, 0.4, 0.4]},
-            "firstperson_righthand": {"rotation": [0, 45, 0], "translation": [0, 3, 0], "scale": [0.45, 0.45, 0.45]},
-        },
-    }
+    cells = b.get("cells")
+    minx = min(e["from"][0] for e in elements); maxx = max(e["to"][0] for e in elements)
+    minz = min(e["from"][2] for e in elements); maxz = max(e["to"][2] for e in elements)
+    maxy = max(e["to"][1] for e in elements)
+    span = max(maxx - minx, maxz - minz, maxy) / 16.0
+    k = 1.0 if span <= 1.0 else 1.0 / span
+
+    def display(scale):
+        return {
+            "gui": {"rotation": [30, 225, 0], "translation": [0, -1, 0], "scale": [0.85 * scale] * 3},
+            "ground": {"rotation": [0, 0, 0], "translation": [0, 3, 0], "scale": [0.5 * scale] * 3},
+            "fixed": {"rotation": [0, 180, 0], "translation": [0, -1, 0], "scale": [0.7 * scale] * 3},
+            "thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 2.5, 0], "scale": [0.4 * scale] * 3},
+            "firstperson_righthand": {"rotation": [0, 45, 0], "translation": [0, 3, 0], "scale": [0.45 * scale] * 3},
+        }
+
+    tex_ref = {"0": "cocteleria:block/" + b["id"], "particle": "cocteleria:block/" + b["id"]}
+    model = {"parent": "minecraft:block/block", "render_type": "minecraft:" + b["render"],
+             "textures": tex_ref, "elements": elements, "display": display(k)}
     for sub in ("models/block", "models/item", "blockstates"):
         os.makedirs(os.path.join(ASSETS, sub), exist_ok=True)
     with open(os.path.join(ASSETS, "models/block/%s.json" % b["id"]), "w") as f:
         json.dump(model, f, indent=1)
-    with open(os.path.join(ASSETS, "models/item/%s.json" % b["id"]), "w") as f:
-        json.dump({"parent": "cocteleria:block/" + b["id"]}, f, indent=1)
+
+    if cells:
+        # modelo de item independiente, centrado en el bloque y reducido
+        dx, dz = 8 - (minx + maxx) / 2, 8 - (minz + maxz) / 2
+        shifted = json.loads(json.dumps(elements))
+        for e in shifted:
+            e["from"] = [e["from"][0] + dx, e["from"][1], e["from"][2] + dz]
+            e["to"] = [e["to"][0] + dx, e["to"][1], e["to"][2] + dz]
+            if "rotation" in e:
+                o = e["rotation"]["origin"]
+                e["rotation"]["origin"] = [o[0] + dx, o[1], o[2] + dz]
+        item = dict(model, elements=shifted)
+        with open(os.path.join(ASSETS, "models/item/%s.json" % b["id"]), "w") as f:
+            json.dump(item, f, indent=1)
+    else:
+        with open(os.path.join(ASSETS, "models/item/%s.json" % b["id"]), "w") as f:
+            json.dump({"parent": "cocteleria:block/" + b["id"]}, f, indent=1)
+
     mp = "cocteleria:block/" + b["id"]
-    state = {"variants": {
-        "facing=north": {"model": mp},
-        "facing=east": {"model": mp, "y": 90},
-        "facing=south": {"model": mp, "y": 180},
-        "facing=west": {"model": mp, "y": 270},
-    }}
+    empty = "cocteleria:block/empty"
+    rots = {"north": 0, "east": 90, "south": 180, "west": 270}
+    variants = {}
+    for facing, y in rots.items():
+        for part in range(len(cells) if cells else 1):
+            key = "facing=%s,part=%d" % (facing, part) if cells else "facing=%s" % facing
+            if cells and part > 0:
+                variants[key] = {"model": empty}
+            else:
+                v = {"model": mp}
+                if y:
+                    v["y"] = y
+                variants[key] = v
     with open(os.path.join(ASSETS, "blockstates/%s.json" % b["id"]), "w") as f:
-        json.dump(state, f, indent=1)
-    loot = {"type": "minecraft:block", "pools": [{"rolls": 1, "bonus_rolls": 0, "entries": [
-        {"type": "minecraft:item", "name": "cocteleria:" + b["id"]}],
-        "conditions": [{"condition": "minecraft:survives_explosion"}]}]}
-    os.makedirs(os.path.join(DATA, "loot_tables/blocks"), exist_ok=True)
-    with open(os.path.join(DATA, "loot_tables/blocks/%s.json" % b["id"]), "w") as f:
-        json.dump(loot, f, indent=1)
+        json.dump({"variants": variants}, f, indent=1)
+    if not cells:
+        loot = {"type": "minecraft:block", "pools": [{"rolls": 1, "bonus_rolls": 0, "entries": [
+            {"type": "minecraft:item", "name": "cocteleria:" + b["id"]}],
+            "conditions": [{"condition": "minecraft:survives_explosion"}]}]}
+        os.makedirs(os.path.join(DATA, "loot_tables/blocks"), exist_ok=True)
+        with open(os.path.join(DATA, "loot_tables/blocks/%s.json" % b["id"]), "w") as f:
+            json.dump(loot, f, indent=1)
 
 
 def shape_boxes(b):
@@ -290,12 +320,14 @@ public class ModBlocks {
     for b in BLOCKS:
         boxes = ", ".join("{" + ", ".join(num(v) for v in bx) + "}" for bx in shape_boxes(b))
         game = "BarGame.%s" % b["game"] if b.get("game") else "null"
-        lines.append("    public static final RegistryObject<Block> %s = decor(\"%s\", SoundType.%s, %s, %s,\n            new double[][]{%s});\n"
-                     % (b["id"].upper(), b["id"], b["sound"], "true" if b.get("wall") else "false", game, boxes))
-    lines.append("""    private static RegistryObject<Block> decor(String name, SoundType sound, boolean wall, BarGame game, double[][] boxes) {
+        cells = "new int[][]{%s}" % ", ".join("{%d, %d}" % c for c in b["cells"]) if b.get("cells") else "null"
+        lines.append("    public static final RegistryObject<Block> %s = decor(\"%s\", SoundType.%s, %s, %s,\n            new double[][]{%s},\n            %s);\n"
+                     % (b["id"].upper(), b["id"], b["sound"], "true" if b.get("wall") else "false", game, boxes, cells))
+    lines.append("""    private static RegistryObject<Block> decor(String name, SoundType sound, boolean wall, BarGame game,
+                                               double[][] boxes, int[][] cells) {
         RegistryObject<Block> block = BLOCKS.register(name, () -> {
             BlockBehaviour.Properties props = BlockBehaviour.Properties.of().strength(0.3F).sound(sound).noOcclusion();
-            return game == null ? new DecorBlock(props, boxes, wall) : new GameDecorBlock(props, boxes, wall, game);
+            return game == null ? new DecorBlock(props, boxes, wall, cells) : new GameDecorBlock(props, boxes, wall, cells, game);
         });
         if (game != null) {
             GAME_BLOCKS.add(block);
@@ -321,6 +353,9 @@ def update_lang():
 
 
 if __name__ == "__main__":
+    os.makedirs(os.path.join(ASSETS, "models/block"), exist_ok=True)
+    with open(os.path.join(ASSETS, "models/block/empty.json"), "w") as f:
+        json.dump({"textures": {"particle": "minecraft:block/oak_planks"}}, f)
     for b in BLOCKS:
         build_block(b)
     write_java()

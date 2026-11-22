@@ -1,118 +1,231 @@
 package com.cocteleria.game;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
- * Billar por turnos para dos jugadores (versión simplificada, sin física): cada clic es un tiro.
- * Hay que embocar 7 bolas y luego la bola 8. Si emboca, sigue tirando; si falla, pasa el turno.
- * Una falta (blanca adentro) regala una bola al rival. Shift + clic reinicia.
+ * Billar americano (8 bolas) para dos jugadores con física real. Apuntas con el mouse, mantienes ESPACIO para cargar
+ * la fuerza y sueltas para tirar. Acciones: 1 = tiro (f = ángulo, a = fuerza 0-1000), 2 = colocar la blanca (a, b = x, y * 10),
+ * 9 = reiniciar.
  */
-public class PoolSession implements GameSession {
-    private static final int BALLS = 7;
+public class PoolSession extends AbstractSession {
+    private static final int WAIT = 0, AIM = 1, ROLLING = 2, PLACE = 3, OVER = 4;
 
-    private final UUID[] players = new UUID[2];
+    private final PoolTable table = new PoolTable();
+    private final UUID[] ids = new UUID[2];
     private final String[] names = {"", ""};
-    private final int[] potted = new int[2];
+    private final int[] group = {-1, -1}; // 0 = lisas, 1 = rayadas
+    private int phase = WAIT;
     private int turn = 0;
     private long lastAction = 0;
+    private String msg = "Siéntate en la mesa para jugar.";
 
-    private void reset() {
-        players[0] = null;
-        players[1] = null;
-        potted[0] = 0;
-        potted[1] = 0;
+    public PoolSession() {
+        super(BarGame.POOL);
+    }
+
+    private void reset(String why) {
+        table.rack();
+        ids[0] = null;
+        ids[1] = null;
+        names[0] = "";
+        names[1] = "";
+        group[0] = -1;
+        group[1] = -1;
+        phase = WAIT;
         turn = 0;
+        msg = why;
+    }
+
+    private int seat(UUID id) {
+        return id.equals(ids[0]) ? 0 : id.equals(ids[1]) ? 1 : -1;
     }
 
     @Override
-    public void use(ServerLevel level, BlockPos pos, BlockState state, Player player, BlockHitResult hit) {
+    protected void onUse(ServerLevel level, BlockPos pos, ServerPlayer player) {
         UUID id = player.getUUID();
-        String name = Msg.name(player);
-        long now = level.getGameTime();
-
-        if (Msg.isSpecial(player)) {
-            reset();
-            Msg.say(level, pos, "§e" + name + " reinicia la partida de billar.");
+        if (seat(id) >= 0) {
             return;
         }
-
-        int me = id.equals(players[0]) ? 0 : id.equals(players[1]) ? 1 : -1;
-        if (me < 0) {
-            if (players[0] == null) {
-                players[0] = id;
-                names[0] = name;
-                Msg.say(level, pos, "§a" + name + " arma el triángulo de billar. ¡Falta un rival!");
-            } else if (players[1] == null) {
-                players[1] = id;
-                names[1] = name;
-                turn = 0;
-                lastAction = now;
-                Msg.say(level, pos, "§a" + name + " se une. §eComienza " + names[0] + ". §7(clic derecho = tirar; 7 bolas y luego la 8)");
-            } else {
-                Msg.bar(player, "§cMesa ocupada: " + names[0] + " vs " + names[1]);
-            }
-            return;
+        if (phase == OVER) {
+            reset("Mesa libre.");
         }
-        if (players[1] == null) {
-            Msg.bar(player, "§eEsperando rival...");
-            return;
-        }
-        if (me != turn) {
-            Msg.bar(player, "§cNo es tu turno: tira " + names[turn]);
-            return;
-        }
-
-        lastAction = now;
-        RandomSource r = level.getRandom();
-        int other = 1 - me;
-        Msg.sound(level, pos, SoundEvents.STONE_BUTTON_CLICK_ON, 0.7F + r.nextFloat() * 0.3F);
-
-        if (potted[me] >= BALLS) { // tiro a la bola 8
-            if (r.nextFloat() < 0.40F) {
-                Msg.say(level, pos, "§6§l¡" + names[me] + " emboca la bola 8 y gana la partida de billar!");
-                reset();
-            } else {
-                Msg.say(level, pos, "§7" + names[me] + " falla la bola 8. Turno de " + names[other] + ".");
-                turn = other;
-            }
-            return;
-        }
-
-        float x = r.nextFloat();
-        if (x < 0.08F) {
-            if (potted[other] < BALLS) {
-                potted[other]++;
-            }
-            Msg.say(level, pos, "§c" + names[me] + " mete la blanca: falta. §7" + names[other] + " recibe una bola. " + score());
-            turn = other;
-        } else if (x < 0.45F) {
-            Msg.say(level, pos, "§7" + names[me] + " no emboca nada. Turno de " + names[other] + ". " + score());
-            turn = other;
-        } else {
-            int n = x < 0.80F ? 1 : x < 0.95F ? 2 : 3;
-            potted[me] = Math.min(BALLS, potted[me] + n);
-            String extra = potted[me] >= BALLS ? " §e¡Ahora va por la bola 8!" : " §7¡Sigue tirando!";
-            Msg.say(level, pos, "§a" + names[me] + " emboca " + n + (n == 1 ? " bola." : " bolas.") + extra + " " + score());
+        String name = player.getName().getString();
+        if (ids[0] == null) {
+            ids[0] = id;
+            names[0] = name;
+            msg = name + " arma el triángulo. ¡Falta un rival!";
+        } else if (ids[1] == null) {
+            ids[1] = id;
+            names[1] = name;
+            phase = AIM;
+            turn = 0;
+            lastAction = level.getGameTime();
+            msg = "Rompe " + names[0] + ".";
         }
     }
 
-    private String score() {
-        return "§f[" + names[0] + " " + potted[0] + "/" + BALLS + " - " + potted[1] + "/" + BALLS + " " + names[1] + "]";
+    @Override
+    public void action(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player,
+                       int type, int a, int b, float f) {
+        int me = seat(player.getUUID());
+        if (type == 9) {
+            if (me >= 0 || phase == OVER) {
+                reset("La mesa se reinició.");
+                sync(level, pos);
+            }
+            return;
+        }
+        if (me < 0 || me != turn) {
+            return;
+        }
+        long now = level.getGameTime();
+        if (type == 1 && phase == AIM && !Float.isNaN(f)) {
+            float power = Math.max(0.04F, Math.min(1.0F, a / 1000.0F)) * 7.5F;
+            table.shoot(f, power);
+            phase = ROLLING;
+            lastAction = now;
+            Msg.sound(level, pos, SoundEvents.STONE_BUTTON_CLICK_ON, 0.6F + a / 2000.0F);
+            sync(level, pos);
+        } else if (type == 2 && phase == PLACE) {
+            float px = a / 10.0F, py = b / 10.0F;
+            if (table.isFree(px, py)) {
+                table.placeCue(px, py);
+                phase = AIM;
+                lastAction = now;
+                msg = names[turn] + " tiene la blanca en mano. ¡Apunta y tira!";
+                sync(level, pos);
+            }
+        }
     }
 
     @Override
     public void tick(ServerLevel level, BlockPos pos, BlockState state) {
-        if (players[0] != null && level.getGameTime() - lastAction > 2400) {
-            Msg.say(level, pos, "§7La partida de billar se abandonó.");
-            reset();
+        long now = level.getGameTime();
+        if (phase == ROLLING) {
+            table.step();
+            if (!table.moving()) {
+                endShot(level, pos);
+            }
+            sync(level, pos);
+        } else if (phase != WAIT && now - lastAction > 6000) {
+            reset("Partida abandonada.");
+            sync(level, pos);
         }
+    }
+
+    private static int groupOf(int ball) {
+        return ball == 8 ? -2 : ball < 8 ? 0 : 1;
+    }
+
+    private int ownLeft(int g, List<Integer> pottedNow) {
+        int left = 0;
+        for (int i = 1; i < 16; i++) {
+            if (i != 8 && groupOf(i) == g && (!table.potted[i] || pottedNow.contains(i))) {
+                left++;
+            }
+        }
+        return left;
+    }
+
+    private void endShot(ServerLevel level, BlockPos pos) {
+        int me = turn, other = 1 - me;
+        List<Integer> pots = new ArrayList<>(table.pottedThisShot);
+        boolean foul = table.cuePotted;
+        String why = foul ? "metió la blanca" : "";
+
+        if (group[me] < 0) {
+            for (int bl : pots) {
+                if (bl != 8) {
+                    group[me] = groupOf(bl);
+                    group[other] = 1 - group[me];
+                    break;
+                }
+            }
+        }
+        boolean onEight = group[me] >= 0 && ownLeft(group[me], pots) == 0;
+
+        if (!foul) {
+            int first = table.firstContact;
+            if (first < 0) {
+                foul = true;
+                why = "no tocó ninguna bola";
+            } else if (onEight) {
+                if (first != 8) {
+                    foul = true;
+                    why = "debía tocar primero la 8";
+                }
+            } else if (first == 8 || (group[me] >= 0 && groupOf(first) != group[me])) {
+                foul = true;
+                why = "tocó primero una bola equivocada";
+            }
+        }
+
+        if (pots.contains(8)) {
+            boolean win = onEight && !foul;
+            int winner = win ? me : other;
+            phase = OVER;
+            msg = win ? "¡" + names[me] + " emboca la 8 y gana la partida!"
+                    : names[me] + " emboca la 8 " + (onEight ? "con falta" : "antes de tiempo") + ": gana " + names[other] + ".";
+            Msg.say(level, pos, "§6§l" + names[winner] + " gana el billar.");
+            return;
+        }
+
+        boolean ownPotted = false;
+        for (int bl : pots) {
+            if (group[me] >= 0 && groupOf(bl) == group[me]) {
+                ownPotted = true;
+            }
+        }
+        lastAction = level.getGameTime();
+        if (foul) {
+            if (table.cuePotted) {
+                table.placeCue(PoolTable.W * 0.25F, PoolTable.H / 2);
+            }
+            turn = other;
+            phase = PLACE;
+            msg = "Falta de " + names[me] + " (" + why + "). " + names[other] + " tiene la blanca en mano: haz clic en la mesa para colocarla.";
+        } else if (ownPotted) {
+            phase = AIM;
+            msg = names[me] + " embocó y sigue tirando.";
+        } else {
+            turn = other;
+            phase = AIM;
+            msg = "Turno de " + names[other] + ".";
+        }
+    }
+
+    @Override
+    protected CompoundTag view(ServerLevel level) {
+        CompoundTag t = new CompoundTag();
+        int[] p = new int[32];
+        int mask = 0;
+        for (int i = 0; i < 16; i++) {
+            p[i * 2] = Math.round(table.x[i] * 10);
+            p[i * 2 + 1] = Math.round(table.y[i] * 10);
+            if (table.potted[i]) {
+                mask |= 1 << i;
+            }
+        }
+        t.putIntArray("pos", p);
+        t.putInt("mask", mask);
+        t.putInt("turn", turn);
+        t.putInt("phase", phase);
+        t.putString("n0", names[0]);
+        t.putString("n1", names[1]);
+        t.putString("id0", ids[0] == null ? "" : ids[0].toString());
+        t.putString("id1", ids[1] == null ? "" : ids[1].toString());
+        t.putInt("g0", group[0]);
+        t.putInt("g1", group[1]);
+        t.putString("msg", msg);
+        return t;
     }
 }

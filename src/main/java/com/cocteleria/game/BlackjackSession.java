@@ -1,11 +1,12 @@
 package com.cocteleria.game;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -15,14 +16,15 @@ import java.util.Random;
 import java.util.UUID;
 
 /**
- * Veintiuno (blackjack) contra el crupier para varios jugadores. Clic derecho: unirse / pedir carta.
- * Shift + clic (manos vacías): plantarse. Cuando todos terminan, el crupier juega (pide hasta 17) y se reparten resultados.
+ * Veintiuno contra el crupier para varios jugadores. Acciones: 1 = repartir / unirse, 2 = pedir carta, 3 = plantarse.
+ * Cuando todos terminan, el crupier juega (pide hasta 17) y se reparten los resultados.
  */
-public class BlackjackSession implements GameSession {
+public class BlackjackSession extends AbstractSession {
     private static final class Hand {
         final List<Integer> cards = new ArrayList<>();
         final String name;
         boolean done;
+        String result = "";
 
         Hand(String name) {
             this.name = name;
@@ -35,6 +37,11 @@ public class BlackjackSession implements GameSession {
     private final List<Integer> dealer = new ArrayList<>();
     private boolean playing = false;
     private long lastAction = 0;
+    private String msg = "Pulsa «Repartir» para abrir la mesa de 21.";
+
+    public BlackjackSession() {
+        super(BarGame.BLACKJACK);
+    }
 
     private int draw() {
         if (deck.size() < 12) {
@@ -44,62 +51,59 @@ public class BlackjackSession implements GameSession {
     }
 
     @Override
-    public void use(ServerLevel level, BlockPos pos, BlockState state, Player player, BlockHitResult hit) {
+    public void action(ServerLevel level, BlockPos pos, BlockState state, ServerPlayer player,
+                       int type, int a, int b, float f) {
         UUID id = player.getUUID();
-        String name = Msg.name(player);
+        String name = player.getName().getString();
         long now = level.getGameTime();
         lastAction = now;
 
-        if (!playing) {
-            playing = true;
-            hands.clear();
-            dealer.clear();
-            dealer.add(draw());
-            dealer.add(draw());
-            Msg.say(level, pos, "§e" + name + " abre una mesa de 21. §7Otros pueden unirse con clic derecho. Crupier: "
-                    + Cards.text(dealer.get(0)) + " §7+ carta oculta");
-        }
-
-        Hand hand = hands.get(id);
-        if (hand == null) {
-            hand = new Hand(name);
-            hand.cards.add(draw());
-            hand.cards.add(draw());
-            hands.put(id, hand);
-            int v = Cards.value(hand.cards);
-            Msg.say(level, pos, "§a" + name + " §7recibe: " + Cards.show(hand.cards) + " §7(" + v + ")"
-                    + (v == 21 ? " §6¡Veintiuno!" : " §8— clic: pedir, Shift+clic: plantarse"));
-            if (v == 21) {
-                hand.done = true;
+        if (type == 1) {
+            if (!playing) {
+                playing = true;
+                hands.clear();
+                dealer.clear();
+                dealer.add(draw());
+                dealer.add(draw());
+                msg = name + " abre la mesa. Otros jugadores pueden unirse con «Repartir».";
             }
-        } else if (hand.done) {
-            Msg.bar(player, "§7Ya terminaste tu mano. Espera a los demás.");
+            if (!hands.containsKey(id)) {
+                Hand h = new Hand(name);
+                h.cards.add(draw());
+                h.cards.add(draw());
+                hands.put(id, h);
+                if (Cards.value(h.cards) == 21) {
+                    h.done = true;
+                }
+                Msg.sound(level, pos, SoundEvents.BOOK_PAGE_TURN, 1.1F);
+            }
+        } else if (playing && hands.containsKey(id) && !hands.get(id).done) {
+            Hand h = hands.get(id);
+            if (type == 2) {
+                h.cards.add(draw());
+                Msg.sound(level, pos, SoundEvents.BOOK_PAGE_TURN, 1.3F);
+                int v = Cards.value(h.cards);
+                if (v >= 21) {
+                    h.done = true;
+                }
+            } else if (type == 3) {
+                h.done = true;
+            }
+        }
+        checkAllDone(level, pos);
+        sync(level, pos);
+    }
+
+    private void checkAllDone(ServerLevel level, BlockPos pos) {
+        if (!playing || hands.isEmpty()) {
             return;
-        } else if (Msg.isSpecial(player)) {
-            hand.done = true;
-            Msg.say(level, pos, "§f" + name + " §7se planta con " + Cards.show(hand.cards) + " §7(" + Cards.value(hand.cards) + ")");
-        } else {
-            hand.cards.add(draw());
-            int v = Cards.value(hand.cards);
-            Msg.sound(level, pos, SoundEvents.BOOK_PAGE_TURN, 1.2F);
-            if (v > 21) {
-                hand.done = true;
-                Msg.say(level, pos, "§c" + name + " pide y se pasa: " + Cards.show(hand.cards) + " §c(" + v + ")");
-            } else if (v == 21) {
-                hand.done = true;
-                Msg.say(level, pos, "§6" + name + " llega a 21: " + Cards.show(hand.cards));
-            } else {
-                Msg.say(level, pos, "§f" + name + " §7pide: " + Cards.show(hand.cards) + " §7(" + v + ")");
+        }
+        for (Hand h : hands.values()) {
+            if (!h.done) {
+                return;
             }
         }
-
-        boolean allDone = true;
-        for (Hand h : hands.values()) {
-            allDone &= h.done;
-        }
-        if (allDone) {
-            resolve(level, pos);
-        }
+        resolve(level, pos);
     }
 
     private void resolve(ServerLevel level, BlockPos pos) {
@@ -107,35 +111,56 @@ public class BlackjackSession implements GameSession {
             dealer.add(draw());
         }
         int dv = Cards.value(dealer);
-        Msg.say(level, pos, "§eCrupier: " + Cards.show(dealer) + " §e(" + dv + (dv > 21 ? ", se pasa" : "") + ")");
+        StringBuilder sb = new StringBuilder("Crupier: " + dv + (dv > 21 ? " (se pasa)" : "") + ". ");
         for (Hand h : hands.values()) {
             int pv = Cards.value(h.cards);
-            String result;
             if (pv > 21) {
-                result = "§cpierde";
+                h.result = "pierde";
             } else if (dv > 21 || pv > dv) {
-                result = "§a§lGANA";
+                h.result = "GANA";
             } else if (pv == dv) {
-                result = "§eempata";
+                h.result = "empata";
             } else {
-                result = "§cpierde";
+                h.result = "pierde";
             }
-            Msg.say(level, pos, "§f" + h.name + " " + result + " §7(" + pv + " vs " + dv + ")");
+            sb.append(h.name).append(' ').append(h.result).append(". ");
         }
-        Msg.sound(level, pos, SoundEvents.BOOK_PAGE_TURN, 0.8F);
+        msg = sb.toString().trim();
         playing = false;
-        hands.clear();
-        dealer.clear();
+        Msg.sound(level, pos, SoundEvents.BOOK_PAGE_TURN, 0.8F);
     }
 
     @Override
     public void tick(ServerLevel level, BlockPos pos, BlockState state) {
         if (playing && level.getGameTime() - lastAction > 600) {
-            Msg.say(level, pos, "§7Se acabó el tiempo: todos se plantan.");
             for (Hand h : hands.values()) {
                 h.done = true;
             }
             resolve(level, pos);
+            msg = "Se acabó el tiempo. " + msg;
+            sync(level, pos);
         }
+    }
+
+    @Override
+    protected CompoundTag view(ServerLevel level) {
+        CompoundTag t = new CompoundTag();
+        t.putBoolean("playing", playing);
+        t.putIntArray("dealer", dealer.stream().mapToInt(Integer::intValue).toArray());
+        ListTag list = new ListTag();
+        for (Map.Entry<UUID, Hand> e : hands.entrySet()) {
+            Hand h = e.getValue();
+            CompoundTag c = new CompoundTag();
+            c.putString("name", h.name);
+            c.putString("id", e.getKey().toString());
+            c.putIntArray("cards", h.cards.stream().mapToInt(Integer::intValue).toArray());
+            c.putBoolean("done", h.done);
+            c.putInt("value", Cards.value(h.cards));
+            c.putString("result", h.result);
+            list.add(c);
+        }
+        t.put("hands", list);
+        t.putString("msg", msg);
+        return t;
     }
 }

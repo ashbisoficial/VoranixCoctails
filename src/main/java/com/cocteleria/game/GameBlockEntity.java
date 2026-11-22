@@ -22,6 +22,11 @@ public class GameBlockEntity extends BlockEntity {
         return session;
     }
 
+    /** Sesión existente o null (no la crea). */
+    public GameSession existingSession() {
+        return session;
+    }
+
     public static void serverTick(Level level, BlockPos pos, BlockState state, GameBlockEntity entity) {
         if (entity.session != null && level instanceof ServerLevel serverLevel) {
             entity.session.tick(serverLevel, pos, state);

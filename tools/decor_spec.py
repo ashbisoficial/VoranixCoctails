@@ -248,69 +248,90 @@ BLOCKS.append(dict(
     ],
     shape=[[0.5, 0, 0.5, 15.5, 1.3, 15.5]]))
 
-# ---- mesa de gallito (pulseada)
+# Celdas de las mesas grandes: (dx, dz) respecto al bloque origen (modelo mirando al norte).
+CELLS_2X1 = [(0, 0), (1, 0)]
+CELLS_3X2 = [(0, 0), (-1, 0), (1, 0), (0, 1), (-1, 1), (1, 1)]
+
+# ---- mesa de gallito (pulseada) 2x1
 BLOCKS.append(dict(
     id="arm_wrestling_table", es="Mesa de gallito (pulseada)", en="Arm Wrestling Table", sound="WOOD",
-    render="cutout", game="ARM",
+    render="cutout", game="ARM", cells=CELLS_2X1,
     mats={"wood": WOOD_L, "dark": WOOD_D, "red": ("plain", (190, 40, 40)), "blue": ("plain", (40, 80, 190)),
           "metal": ("metal", (200, 205, 215))},
     parts=[
-        box([0, 11, 2], [16, 13, 14], "wood"),
-        box([1, 0, 3], [3, 11, 5], "dark"), box([13, 0, 3], [15, 11, 5], "dark"),
-        box([1, 0, 11], [3, 11, 13], "dark"), box([13, 0, 11], [15, 11, 13], "dark"),
-        box([2, 13, 5.5], [5.5, 13.6, 10.5], "red"),
-        box([10.5, 13, 5.5], [14, 13.6, 10.5], "blue"),
-        box([6.5, 13, 6.5], [9.5, 13.5, 9.5], "dark"),
-        box([7.3, 13.5, 7.3], [8.7, 15.2, 8.7], "metal"),
-    ],
-    shape=[[0, 0, 2, 16, 15.2, 14]]))
+        box([3, 11, 2], [29, 13, 14], "wood"),
+        box([4, 0, 3], [6.5, 11, 5.5], "dark"), box([25.5, 0, 3], [28, 11, 5.5], "dark"),
+        box([4, 0, 10.5], [6.5, 11, 13], "dark"), box([25.5, 0, 10.5], [28, 11, 13], "dark"),
+        box([6, 13, 4.5], [13, 13.6, 11.5], "red"),
+        box([19, 13, 4.5], [26, 13.6, 11.5], "blue"),
+        box([13.5, 13, 5.5], [18.5, 14, 10.5], "dark"),
+        box([14.3, 14, 7.3], [15.5, 17, 8.7], "metal"),
+        box([16.5, 14, 7.3], [17.7, 17, 8.7], "metal"),
+    ]))
 
-# ---- mesa de billar
-_balls = [(7.45, 4.5, "b1"), (6.8, 5.6, "b2"), (8.1, 5.6, "b8"), (6.15, 6.7, "b3"), (7.45, 6.7, "b4"),
-          (8.75, 6.7, "b5"), (7.45, 10.8, "cue")]
+# ---- mesa de billar 3x2
+_cx = 8  # centro X del bloque origen
+_balls = [(1.0, 15.0, "cue"), (17.0, 15.0, "b1"), (18.9, 14.0, "b2"), (18.9, 16.0, "b8"),
+          (20.8, 13.0, "b3"), (20.8, 15.0, "b4"), (20.8, 17.0, "b5")]
+_pool = [
+    # patas
+    box([-12.5, 0, 5], [-9.5, 11, 8], "wood"), box([25.5, 0, 5], [28.5, 11, 8], "wood"),
+    box([-12.5, 0, 24], [-9.5, 11, 27], "wood"), box([25.5, 0, 24], [28.5, 11, 27], "wood"),
+    # faldón
+    box([-14, 10, 3], [30, 13, 29], "wood"),
+    # bordes
+    box([-14, 13, 3], [30, 15, 7], "wood"), box([-14, 13, 25], [30, 15, 29], "wood"),
+    box([-14, 13, 7], [-10, 15, 25], "wood"), box([26, 13, 7], [30, 15, 25], "wood"),
+    # paño 36x18
+    box([-10, 13, 7], [26, 14, 25], "felt"),
+    # troneras
+    box([-10, 14, 7], [-7, 14.2, 10], "dark", shape=False), box([23, 14, 7], [26, 14.2, 10], "dark", shape=False),
+    box([-10, 14, 22], [-7, 14.2, 25], "dark", shape=False), box([23, 14, 22], [26, 14.2, 25], "dark", shape=False),
+    box([6.5, 14, 7], [9.5, 14.2, 9.5], "dark", shape=False), box([6.5, 14, 22.5], [9.5, 14.2, 25], "dark", shape=False),
+] + [box([x, 14, z], [x + 1.8, 15.8, z + 1.8], m, shape=False) for (x, z, m) in
+     [(bx - 1, bz + 2 - 0.0, m) for (bx, bz, m) in _balls]]
+for i in range(7):  # diamantes de los bordes largos
+    _pool.append(box([-8 + i * 5.3, 15, 4.6], [-7.2 + i * 5.3, 15.2, 5.4], "dia", shape=False))
+    _pool.append(box([-8 + i * 5.3, 15, 26.6], [-7.2 + i * 5.3, 15.2, 27.4], "dia", shape=False))
 BLOCKS.append(dict(
     id="pool_table", es="Mesa de billar", en="Pool Table", sound="WOOD", render="cutout", game="POOL",
-    mats={"wood": WOOD_D, "felt": ("felt", (32, 120, 62)), "dark": DARK,
+    cells=CELLS_3X2,
+    mats={"wood": WOOD_D, "felt": ("felt", (32, 120, 62)), "dark": DARK, "dia": ("metal", (230, 220, 180)),
           "cue": ("plain", (245, 245, 240)), "b1": ("plain", (240, 200, 40)), "b2": ("plain", (40, 80, 200)),
           "b3": ("plain", (210, 40, 40)), "b4": ("plain", (120, 50, 160)), "b5": ("plain", (240, 130, 30)),
           "b8": ("plain", (20, 20, 22))},
-    parts=[
-        box([0.5, 0, 2], [2.5, 10, 4], "wood"), box([13.5, 0, 2], [15.5, 10, 4], "wood"),
-        box([0.5, 0, 12], [2.5, 10, 14], "wood"), box([13.5, 0, 12], [15.5, 10, 14], "wood"),
-        box([0, 10, 1], [16, 13, 15], "wood"),
-        box([0, 13, 1], [16, 15, 2.2], "wood"), box([0, 13, 13.8], [16, 15, 15], "wood"),
-        box([0, 13, 2.2], [1.2, 15, 13.8], "wood"), box([14.8, 13, 2.2], [16, 15, 13.8], "wood"),
-        box([1.2, 13, 2.2], [14.8, 14, 13.8], "felt"),
-        box([1.2, 14, 2.2], [2.4, 14.2, 3.4], "dark", shape=False), box([13.6, 14, 2.2], [14.8, 14.2, 3.4], "dark", shape=False),
-        box([1.2, 14, 12.6], [2.4, 14.2, 13.8], "dark", shape=False), box([13.6, 14, 12.6], [14.8, 14.2, 13.8], "dark", shape=False),
-        box([7.4, 14, 2.2], [8.6, 14.2, 3.4], "dark", shape=False), box([7.4, 14, 12.6], [8.6, 14.2, 13.8], "dark", shape=False),
-    ] + [box([x, 14, z], [x + 1.1, 15.1, z + 1.1], m, shape=False) for (x, z, m) in _balls],
-    shape=[[0, 0, 1, 16, 15, 15]]))
+    parts=_pool))
 
-# ---- taca-taca (metegol)
-_rods = [(5, "red"), (7, "blue"), (9, "red"), (11, "blue")]
-_fparts = [
-    box([1, 0, 4], [3, 5, 6], "dark"), box([13, 0, 4], [15, 5, 6], "dark"),
-    box([1, 0, 10], [3, 5, 12], "dark"), box([13, 0, 10], [15, 5, 12], "dark"),
-    box([1, 5, 3], [15, 10, 13], "wood"),
-    box([2, 10, 4], [14, 10.4, 12], "felt"),
-    box([1, 10, 3], [15, 11.5, 4], "wood"), box([1, 10, 12], [15, 11.5, 13], "wood"),
-    box([1, 10, 4], [2, 11.5, 12], "wood"), box([14, 10, 4], [15, 11.5, 12], "wood"),
+# ---- taca-taca 2x1
+_f = [
+    box([3, 0, 3], [5, 9, 5], "dark"), box([27, 0, 3], [29, 9, 5], "dark"),
+    box([3, 0, 11], [5, 9, 13], "dark"), box([27, 0, 11], [29, 9, 13], "dark"),
+    box([2, 9, 2], [30, 13, 14], "wood"),
+    box([4, 13, 4], [28, 13.3, 12], "felt"),
+    box([2, 13, 2], [30, 15, 4], "wood"), box([2, 13, 12], [30, 15, 14], "wood"),
+    box([2, 13, 4], [4, 15, 12], "wood"), box([28, 13, 4], [30, 15, 12], "wood"),
 ]
-for (z, team) in _rods:
-    _fparts.append(box([0, 11, z - 0.3], [16, 11.6, z + 0.3], "metal", shape=False))
-    _fparts.append(box([0, 10.6, z - 0.5], [1.2, 12, z + 0.5], "dark", shape=False))
-    _fparts.append(box([14.8, 10.6, z - 0.5], [16, 12, z + 0.5], "dark", shape=False))
-    for x in (4.5, 8, 11.5):
-        _fparts.append(box([x, 10.4, z - 0.4], [x + 0.8, 11.6, z + 0.4], team, shape=False))
-_fparts.append(box([7.6, 10.4, 7.6], [8.4, 11.1, 8.4], "ball", shape=False))
+_rod_team = ["red", "red", "blue", "red", "blue", "red", "blue", "blue"]
+_rod_n = [1, 2, 3, 5, 5, 3, 2, 1]
+for i in range(8):
+    rx = 5.5 + i * 3.0
+    team = _rod_team[i]
+    _f.append(box([rx - 0.3, 14.2, -1.5], [rx + 0.3, 14.8, 15.5], "metal", shape=False))
+    _f.append(box([rx - 0.6, 13.8, -2.5], [rx + 0.6, 15.2, -0.5], "dark", shape=False))
+    _f.append(box([rx - 0.6, 13.8, 14.5], [rx + 0.6, 15.2, 16.5], "dark", shape=False))
+    n = _rod_n[i]
+    gap = {1: 0, 2: 3.2, 3: 2.8, 5: 1.8}[n]
+    for j in range(n):
+        z = 8 + (j - (n - 1) / 2) * gap
+        _f.append(box([rx - 0.5, 13.4, z - 0.45], [rx + 0.5, 14.9, z + 0.45], team, shape=False))
+_f.append(box([15.5, 13.3, 7.6], [16.5, 14.1, 8.4], "ball", shape=False))
 BLOCKS.append(dict(
     id="foosball_table", es="Taca-taca (metegol)", en="Foosball Table", sound="WOOD", render="cutout",
-    game="FOOSBALL",
+    game="FOOSBALL", cells=CELLS_2X1,
     mats={"wood": WOOD_L, "dark": ("wood", (80, 50, 30)), "felt": ("felt", (40, 130, 66)),
           "metal": ("metal", (200, 205, 215)), "red": ("plain", (205, 40, 40)),
           "blue": ("plain", (40, 90, 205)), "ball": ("plain", (245, 245, 240))},
-    parts=_fparts, shape=[[0, 0, 3, 16, 12, 13]]))
+    parts=_f))
 
 # ---- dados
 _dm = die_mats("d")

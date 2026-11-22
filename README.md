@@ -46,3 +46,11 @@ Requiere JDK 17. Abre la carpeta en IntelliJ IDEA / Eclipse (importa como proyec
 
 IDs: mojito, margarita, pina_colada, blue_lagoon, tequila_sunrise, cosmopolitan, whisky_sour,
 black_russian, green_fairy, mai_tai, sangria, long_island, empty_glass.
+
+
+## Juegos de bar (v2): interfaz, mesas grandes y dinámicas
+
+- **Interfaz propia** para cada juego (clic derecho en la mesa): ajedrez, billar, taca-taca, gallito, dados, veintiuno y marcador de dardos.
+- **Mesas realistas** de varios bloques: billar (3x2), taca-taca (2x1) y mesa de gallito (2x1).
+- **Controles**: clic del mouse (ajedrez, mesas), **ESPACIO** (taca-taca, gallito, dados), billar: apuntas con el mouse, mantienes ESPACIO para cargar la fuerza y sueltas para tirar.
+- **Dardos**: el item *Dardo* se lleva en la mano, máximo **6**. Mantén clic derecho para cargar y suelta para lanzar; hay **ángulo de error** (menor con más fuerza, mayor si corres) y **caída** por gravedad. Recógelos desde la pantalla de la diana.
