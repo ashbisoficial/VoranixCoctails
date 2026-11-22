@@ -37,6 +37,5 @@ jobs:
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: Voranix Bar 2.0 - Juegos con interfaz
-          name: Cocteleria v1.0.${{ github.run_number }}
           make_latest: true
           files: build/libs/cocteleria-1.0.0.jar
