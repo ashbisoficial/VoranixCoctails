@@ -5,6 +5,7 @@ import com.cocteleria.registry.ModBlockEntities;
 import com.cocteleria.registry.ModBlocks;
 import com.cocteleria.registry.ModEffects;
 import com.cocteleria.registry.ModEntities;
+import com.cocteleria.registry.ModFoods;
 import com.cocteleria.registry.ModItems;
 import com.cocteleria.registry.ModTabs;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -18,6 +19,7 @@ public class CocteleriaMod {
     public CocteleriaMod() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         ModEffects.EFFECTS.register(bus);
+        ModFoods.init();
         ModBlocks.BLOCKS.register(bus);
         ModBlockEntities.TYPES.register(bus);
         ModEntities.ENTITIES.register(bus);

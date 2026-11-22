@@ -1,0 +1,19 @@
+{
+ "variants": {
+  "bites=0": {
+   "model": "cocteleria:block/french_fries_0"
+  },
+  "bites=1": {
+   "model": "cocteleria:block/french_fries_1"
+  },
+  "bites=2": {
+   "model": "cocteleria:block/french_fries_2"
+  },
+  "bites=3": {
+   "model": "cocteleria:block/french_fries_2"
+  },
+  "bites=4": {
+   "model": "cocteleria:block/french_fries_2"
+  }
+ }
+}

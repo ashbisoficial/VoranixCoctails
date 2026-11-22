@@ -12,7 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.UUID;
 
 /**
- * Gallito (pulseada) para dos jugadores. Tras la cuenta atrás, ambos pulsan ESPACIO (o clic) lo más rápido posible.
+ * Gallito (pulseada) para dos jugadores. Tras la cuenta atrás, ambos pulsan CLIC DERECHO lo más rápido posible.
  * Acciones: 1 = empujar, 9 = abandonar/reiniciar.
  */
 public class ArmWrestlingSession extends AbstractSession {
@@ -126,7 +126,7 @@ public class ArmWrestlingSession extends AbstractSession {
                 phase = PLAYING;
                 count = 0;
                 lastAction = now;
-                msg = "¡YA! ¡Aprieta ESPACIO lo más rápido que puedas!";
+                msg = "¡YA! ¡Aprieta CLIC DERECHO lo más rápido que puedas!";
                 Msg.sound(level, pos, SoundEvents.PLAYER_ATTACK_KNOCKBACK, 1.0F);
                 sync(level, pos);
             }

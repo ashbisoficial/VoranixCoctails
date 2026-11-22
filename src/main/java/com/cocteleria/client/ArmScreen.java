@@ -5,9 +5,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import org.lwjgl.glfw.GLFW;
 
-/** Gallito: tras la cuenta atrás, aprieta ESPACIO (o clic) lo más rápido posible para llevar la mano rival hasta la mesa. */
+/** Gallito: tras la cuenta atrás, aprieta CLIC DERECHO lo más rápido posible para llevar la mano rival hasta la mesa. */
 public class ArmScreen extends GameScreen {
     private float shown = 0;
 
@@ -17,28 +16,17 @@ public class ArmScreen extends GameScreen {
 
     @Override
     protected void build() {
-        addRenderableWidget(Button.builder(Component.literal("Sentarme / Empujar"), b -> send(1, 0, 0, 0))
-                .bounds(width / 2 - 105, height - 30, 100, 20).build());
         addRenderableWidget(Button.builder(Component.literal("Abandonar"), b -> send(9, 0, 0, 0))
-                .bounds(width / 2 + 5, height - 30, 100, 20).build());
-    }
-
-    @Override
-    public boolean keyPressed(int key, int scan, int mods) {
-        if (key == GLFW.GLFW_KEY_SPACE) {
-            send(1, 0, 0, 0);
-            return true;
-        }
-        return super.keyPressed(key, scan, mods);
+                .bounds(width / 2 - 50, height - 30, 100, 20).build());
     }
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
-        if (super.mouseClicked(mx, my, button)) {
+        if (button == 1) { // clic derecho = empujar
+            send(1, 0, 0, 0);
             return true;
         }
-        send(1, 0, 0, 0);
-        return true;
+        return super.mouseClicked(mx, my, button);
     }
 
     @Override
@@ -68,7 +56,7 @@ public class ArmScreen extends GameScreen {
         if (phase == 1) {
             bigCenter(g, data.getInt("count") > 0 ? String.valueOf(data.getInt("count")) : "¡YA!", width / 2, by + 110, 4f, 0xFFFFD27F);
         } else if (phase == 2) {
-            bigCenter(g, "¡ESPACIO! ¡ESPACIO!", width / 2, by + 110, 2.5f, 0xFF9AE6B4);
+            bigCenter(g, "¡CLIC DERECHO! ¡CLIC DERECHO!", width / 2, by + 110, 2.5f, 0xFF9AE6B4);
         }
         String side = isMe(data.getString("aid")) ? "Eres el lado ROJO: empuja hacia la derecha"
                 : isMe(data.getString("bid")) ? "Eres el lado AZUL: empuja hacia la izquierda" : "Espectador";

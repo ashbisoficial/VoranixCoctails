@@ -16,6 +16,8 @@ public class PoolScreen extends GameScreen {
 
     private float scale;
     private int tx, ty;
+    private final float[] sx = new float[16], sy = new float[16];
+    private boolean seeded;
     private boolean charging;
     private long chargeStart;
 
@@ -60,9 +62,7 @@ public class PoolScreen extends GameScreen {
         if (!charging) {
             return 0;
         }
-        float t = (System.currentTimeMillis() - chargeStart) / 1400f;
-        float ph = t % 2f;
-        return ph < 1f ? ph : 2f - ph; // sube y baja: hay que soltar en el momento justo
+        return Math.min(1f, (System.currentTimeMillis() - chargeStart) / 1000f); // sube en 1 s y se queda al máximo
     }
 
     @Override
@@ -122,10 +122,21 @@ public class PoolScreen extends GameScreen {
         int[] p = data.getIntArray("pos");
         int mask = data.getInt("mask");
         if (p.length == 32) {
+            for (int i = 0; i < 16; i++) { // suaviza el movimiento entre actualizaciones del servidor (20/s)
+                float tx2 = p[i * 2] / 10f, ty2 = p[i * 2 + 1] / 10f;
+                if (!seeded || Math.abs(tx2 - sx[i]) > 40 || Math.abs(ty2 - sy[i]) > 40) {
+                    sx[i] = tx2;
+                    sy[i] = ty2;
+                } else {
+                    sx[i] += (tx2 - sx[i]) * 0.5f;
+                    sy[i] += (ty2 - sy[i]) * 0.5f;
+                }
+            }
+            seeded = true;
             // línea de puntería
             if (myTurn() && phase == 1) {
                 float ang = aimAngle(mouseX, mouseY);
-                float cx = tx + cueX() * scale, cy = ty + cueY() * scale;
+                float cx = tx + sx[0] * scale, cy = ty + sy[0] * scale;
                 for (int i = 1; i < 28; i++) {
                     float d = i * 5 * scale * 0.5f + 6;
                     g.fill((int) (cx + Math.cos(ang) * d), (int) (cy + Math.sin(ang) * d),
@@ -143,7 +154,7 @@ public class PoolScreen extends GameScreen {
                 if ((mask & (1 << i)) != 0) {
                     continue;
                 }
-                float bx = tx + p[i * 2] / 10f * scale, by = ty + p[i * 2 + 1] / 10f * scale;
+                float bx = tx + sx[i] * scale, by = ty + sy[i] * scale;
                 float r = 2.25f * scale;
                 circle(g, bx + 1, by + 1, r, 0x66000000);
                 circle(g, bx, by, r, i >= 9 ? 0xFFF5F5F0 : COLORS[i]);

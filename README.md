@@ -54,3 +54,9 @@ black_russian, green_fairy, mai_tai, sangria, long_island, empty_glass.
 - **Mesas realistas** de varios bloques: billar (3x2), taca-taca (2x1) y mesa de gallito (2x1).
 - **Controles**: clic del mouse (ajedrez, mesas), **ESPACIO** (taca-taca, gallito, dados), billar: apuntas con el mouse, mantienes ESPACIO para cargar la fuerza y sueltas para tirar.
 - **Dardos**: el item *Dardo* se lleva en la mano, máximo **6**. Mantén clic derecho para cargar y suelta para lanzar; hay **ángulo de error** (menor con más fuerza, mayor si corres) y **caída** por gravedad. Recógelos desde la pantalla de la diana.
+
+## Comida chilena
+
+- **En plato** (se colocan como bloque y se comen por mordiscos con clic derecho, como la torta; al terminar queda el plato vacío): Hamburguesa, Papas fritas, Completo, Salchipapas. También hay un **Plato** decorativo.
+- **En la mano** (se comen como cualquier comida): Empanada, Sopaipilla, Sopaipilla con pebre.
+- Todo está en la pestaña creativa *Cocteleria* (sin recetas).
