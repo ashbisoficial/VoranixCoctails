@@ -90,7 +90,7 @@ public class PoolSession extends AbstractSession {
         long now = level.getGameTime();
         if (type == 1 && phase == AIM && !Float.isNaN(f)) {
             float p01 = Math.max(0.0F, Math.min(1.0F, a / 1000.0F));
-            float power = 2.5F + p01 * 10.5F; // 2.5 (suave) a 13 (rotura) unidades por tick
+            float power = 3.0F + p01 * 25.0F; // 3 (suave) a 28 (rotura) unidades por tick
             table.shoot(f, power);
             phase = ROLLING;
             lastAction = now;

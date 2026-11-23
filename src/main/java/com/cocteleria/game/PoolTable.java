@@ -10,7 +10,7 @@ import java.util.List;
 public class PoolTable {
     public static final float W = 200F, H = 100F, R = 2.25F;
     private static final float CORNER_POCKET = 6.0F, SIDE_POCKET = 5.5F;
-    private static final int SUBSTEPS = 6;
+    private static final int SUBSTEPS = 14;
 
     public final float[] x = new float[16], y = new float[16], vx = new float[16], vy = new float[16];
     public final boolean[] potted = new boolean[16];
@@ -125,7 +125,7 @@ public class PoolTable {
             if (speed == 0) {
                 continue;
             }
-            float ns = speed * 0.991F - 0.009F;
+            float ns = speed * 0.986F - 0.025F;
             if (ns < 0.03F) {
                 vx[i] = 0;
                 vy[i] = 0;
